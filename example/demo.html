@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en" ng-app="demo" ng-controller="DemoCtrl">
+<head>
+  <meta charset="utf-8">
+  <title>Client-side authentication demo</title>
+</head>
+<body>
+
+<div>
+  <input type="checkbox" id="askApproval" ng-model="askApproval" />
+  <label for="askApproval">Always ask me for approval (even if I've already given it)</label>
+  <div>
+    <button ng-click="authenticate()">Authenticate</button>
+  </div>
+
+  <div ng-show="accessToken" style="display: none">
+    <h1>You're authenticated!</h1>
+
+    <h2>Access token</h2>
+    <pre>{{accessToken}}</pre>
+
+    <div ng-show="expiresIn">
+      <h2>Expiry</h2>
+      <p>Expires in {{expiresIn}} seconds.</p>
+    </div>
+  </div>
+</div>
+
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.1.4/angular.js"></script>
+
+<script src="js/demo.js"></script>
+<script src="../src/js/googleOauth.js"></script>
+<script src="../src/js/angularOauth.js"></script>
+</body>
+</html>
