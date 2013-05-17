@@ -32,6 +32,17 @@ Features
 Demo
 ====
 
+Online
+------
+
+Check out the demo by going to `example/demo.html via rawhithub.com`_.
+
+.. _example/demo.html via rawhithub.com: https://rawgithub.com/enginous/angular-oauth/master/example/demo.html
+
+
+Local
+-----
+
 1. Run a static file server in the root directory (the one this file is in)
    on ``localhost:9000``.  Python 2.X: ``python -m SimpleHTTPServer 9000``.
 
