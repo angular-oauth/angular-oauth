@@ -26,7 +26,7 @@ Features
 
 * A preconfigured module for use with Google authentication.  Check out the
   `example/js/demo.js <example/js/demo.js>`_ and
-  `example/demo.html <example/js/demo.html>`_ for an example.
+  `example/demo.html <example/demo.html>`_ for an example.
 
 
 Demo
