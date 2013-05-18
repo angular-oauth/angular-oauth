@@ -26,14 +26,13 @@ angular.module('demo', ['googleOauth']).
         .then(function(params) {
           // Success getting token from popup.
 
-          var accessToken = params.access_token;
-          $scope.accessToken = accessToken;
-          $scope.expiresIn = params.expires_in;
-
           // Verify the token before setting it, to avoid the confused deputy problem.
-          Token.verifyAsync(accessToken).
+          Token.verifyAsync(params.access_token).
             then(function(data) {
-              Token.set(accessToken);
+              $scope.accessToken = params.access_token;
+              $scope.expiresIn = params.expires_in;
+
+              Token.set(params.access_token);
             }, function() {
               alert("Failed to verify token.")
             });
