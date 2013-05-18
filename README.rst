@@ -1,7 +1,7 @@
 About
 =====
 
-This project provides an implementation of an client-side (implicit grant)
+This project provides an implementation of a client-side (implicit grant)
 OAuth 2.0 authorization flow.
 
 
