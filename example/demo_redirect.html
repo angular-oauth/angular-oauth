@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en" ng-app="demoRedirect" ng-controller="DemoRedirectCtrl">
+<head>
+  <meta charset="utf-8">
+  <title>Client-side authentication demo with redirect</title>
+</head>
+<body>
+
+<div>
+  <div ng-show="accessToken" style="display: none">
+    <h1>You're authenticated!</h1>
+
+    <h2>Access token</h2>
+    <pre>{{accessToken}}</pre>
+
+    <div ng-show="expiresIn">
+      <h2>Expiry</h2>
+      <p>Expires in {{expiresIn}} seconds.</p>
+    </div>
+
+    <div ng-show="accessTokenVerified">
+        <h2>Access token verified</h2>
+    </div>
+  </div>
+</div>
+
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.1.4/angular.js"></script>
+
+<script src="js/demo.js"></script>
+<script src="../src/js/googleOauth.js"></script>
+<script src="../src/js/angularOauth.js"></script>
+</body>
+</html>
