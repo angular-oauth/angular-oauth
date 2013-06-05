@@ -72,7 +72,8 @@ angular.module('angularOauth', []).
           response_type: RESPONSE_TYPE,
           client_id: config.clientId,
           redirect_uri: config.redirectUri,
-          scope: config.scopes.join(" ")
+          scope: config.scopes.join(" "),
+          state: config.state
         }
       };
 
@@ -184,6 +185,18 @@ angular.module('angularOauth', []).
           // TODO: reject deferred if the popup was closed without a message being delivered + maybe offer a timeout
 
           return deferred.promise;
+        },
+
+        extendConfig: function(configExtension) {
+          config = angular.extend(config, configExtension);
+        },
+
+        getTokenWithRedirect: function(extraParams) {
+
+            var params = angular.extend(getParams(), extraParams),
+                url = config.authorizationEndpoint + '?' + objectToQueryString(params);
+
+            $window.open(url, "_self");
         }
       }
     }
@@ -223,4 +236,48 @@ angular.module('angularOauth', []).
 
     window.opener.postMessage(params, "*");
     window.close();
+  });
+
+  angular.module('angularOauthRedirect', ['angularOauth']).config(['TokenProvider', function (TokenProvider) {
+
+    // can't find any other way to avoid exception if I want to be able to use Token.set inside RedirectCtrl
+    TokenProvider.extendConfig({
+        clientId: 'test',
+        authorizationEndpoint: 'test',
+        redirectUri: 'test',
+        scopes: ['test'],
+        verifyFunc: 'test'
+    });
+
+  }]).
+
+  controller('RedirectCtrl', function($scope, $location, $window, $log, Token) {
+
+    /**
+     * TODO duplicate from CallbackCtrl
+     *
+     * Parses an escaped url query string into key-value pairs.
+     *
+     * (Copied from Angular.js in the AngularJS project.)
+     *
+     * @returns Object.<(string|boolean)>
+     */
+    function parseKeyValue(/**string*/keyValue) {
+      var obj = {}, key_value, key;
+      angular.forEach((keyValue || "").split('&'), function(keyValue){
+        if (keyValue) {
+          key_value = keyValue.split('=');
+          key = decodeURIComponent(key_value[0]);
+          obj[key] = angular.isDefined(key_value[1]) ? decodeURIComponent(key_value[1]) : true;
+        }
+      });
+      return obj;
+    }
+
+    var queryString = $location.path().substring(1);  // preceding slash omitted
+    var params = parseKeyValue(queryString);
+
+    Token.set(params.access_token);
+
+    $window.open(params.state, "_self");
   });
