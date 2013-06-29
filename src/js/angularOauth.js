@@ -170,14 +170,28 @@ angular.module('angularOauth', []).
           // TODO: binding occurs for each reauthentication, leading to leaks for long-running apps.
 
           angular.element($window).bind('message', function(event) {
-            if (event.source == popup && event.origin == window.location.origin) {
-              $rootScope.$apply(function() {
-                if (event.data.access_token) {
-                  deferred.resolve(event.data)
-                } else {
-                  deferred.reject(event.data)
-                }
-              })
+            if (event.originalEvent === undefined) {
+              // Native browser event
+              if (event.source == popup && event.origin == window.location.origin) {
+                $rootScope.$apply(function() {
+                  if (event.data.access_token) {
+                    deferred.resolve(event.data)
+                  } else {
+                    deferred.reject(event.data)
+                  }
+                })
+              }
+            } else {
+              // JQuery-wrapped event
+              if (event.originalEvent.origin == window.location.origin) {
+                $rootScope.$apply(function() {
+                  if (event.originalEvent.data.access_token) {
+                    deferred.resolve(event.originalEvent.data)
+                  } else {
+                    deferred.reject(event.originalEvent.data)
+                  }
+                })
+              }
             }
           });
 
