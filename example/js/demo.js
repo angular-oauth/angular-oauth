@@ -17,7 +17,7 @@ angular.module('demo', ['googleOauth']).
     });
   }).
 
-  controller('DemoCtrl', function($scope, $window, Token) {
+  controller('DemoCtrl', function($rootScope, $scope, $window, Token) {
     $scope.accessToken = Token.get();
 
     $scope.authenticate = function() {
@@ -29,10 +29,12 @@ angular.module('demo', ['googleOauth']).
           // Verify the token before setting it, to avoid the confused deputy problem.
           Token.verifyAsync(params.access_token).
             then(function(data) {
-              $scope.accessToken = params.access_token;
-              $scope.expiresIn = params.expires_in;
+              $rootScope.$apply(function() {
+                $scope.accessToken = params.access_token;
+                $scope.expiresIn = params.expires_in;
 
-              Token.set(params.access_token);
+                Token.set(params.access_token);
+              });
             }, function() {
               alert("Failed to verify token.")
             });

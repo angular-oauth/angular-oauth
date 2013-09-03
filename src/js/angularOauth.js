@@ -115,9 +115,7 @@ angular.module('angularOauth', []).
          *      `status`, `headers`, `config`).
          */
         verifyAsync: function(accessToken) {
-          var deferred = $q.defer();
-          config.verifyFunc(config, accessToken, deferred);
-          return deferred.promise;
+          return config.verifyFunc(config, accessToken);
         },
 
         /**
