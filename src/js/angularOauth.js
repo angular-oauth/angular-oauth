@@ -56,8 +56,8 @@ angular.module('angularOauth', []).provider('Token', function () {
         }
       });
       if (requiredAndMissing.length) {
-        throw new Error('TokenProvider is insufficiently configured.  Please ' + 
-                        'configure the following options using ' + 
+        throw new Error('TokenProvider is insufficiently configured.  Please ' +
+                        'configure the following options using ' +
                         'TokenProvider.extendConfig: ' + requiredAndMissing.join(', '));
       }
       if (!config.clientId) {
@@ -74,7 +74,7 @@ angular.module('angularOauth', []).provider('Token', function () {
       };
       return {
         // TODO: get/set might want to support expiration to reauthenticate
-        // TODO: check for localStorage support and otherwise perhaps use other methods of s
+        // TODO: check for localStorage support and otherwise perhaps use other methods of storing data (e.g. cookie)
 
         /**
          * Returns the stored access token.
@@ -98,16 +98,16 @@ angular.module('angularOauth', []).provider('Token', function () {
          * Verifies that the access token is was issued for the use of the current client.
          *
          * @param accessToken An access token received from the authorization server.
-         * @returns {Promise} Promise that will be resolved when the authorization server ha
-         *  token is valid, and we've verified that the token is passed back has audience th
+         * @returns {Promise} Promise that will be resolved when the authorization server has verified that the
+         *  token is valid, and we've verified that the token is passed back has audience that matches our client
          *  ID (to prevent the Confused Deputy Problem).
          *
-         *  If there's an error verifying the token, the promise is rejected with an object 
+         *  If there's an error verifying the token, the promise is rejected with an object identifying the `name` error
          *  in the name member.  The `name` can be either:
          *
          *    - `invalid_audience`: The audience didn't match our client ID.
-         *    - `error_response`: The server responded with an error, typically because the 
-         *      case, the callback parameters to `error` callback on `$http` are available i
+         *    - `error_response`: The server responded with an error, typically because the token was invalid.  In this
+         *      case, the callback parameters to `error` callback on `$http` are available in the object (`data`,
          *      `status`, `headers`, `config`).
          */
         verifyAsync: function (accessToken) {
@@ -121,16 +121,16 @@ angular.module('angularOauth', []).provider('Token', function () {
          *
          * @param extraParams An access token received from the authorization server.
          * @param popupOptions Settings for the display of the popup.
-         * @returns {Promise} Promise that will be resolved when the authorization server ha
-         *  token is valid, and we've verified that the token is passed back has audience th
+         * @returns {Promise} Promise that will be resolved when the authorization server has verified that the
+         *  token is valid, and we've verified that the token is passed back has audience that matches our client
          *  ID (to prevent the Confused Deputy Problem).
          *
-         *  If there's an error verifying the token, the promise is rejected with an object 
+         *  If there's an error verifying the token, the promise is rejected with an object identifying the `name` error
          *  in the name member.  The `name` can be either:
          *
          *    - `invalid_audience`: The audience didn't match our client ID.
-         *    - `error_response`: The server responded with an error, typically because the 
-         *      case, the callback parameters to `error` callback on `$http` are available i
+         *    - `error_response`: The server responded with an error, typically because the token was invalid.  In this
+         *      case, the callback parameters to `error` callback on `$http` are available in the object (`data`,
          *      `status`, `headers`, `config`).
          */
         getTokenByPopup: function (extraParams, popupOptions) {
@@ -145,7 +145,10 @@ angular.module('angularOauth', []).provider('Token', function () {
             }
           }, popupOptions);
 
-          var deferred = $q.defer(), params = angular.extend(getParams(), extraParams), url = config.authorizationEndpoint + '?' + objectToQueryString(params), resolved = false;
+          var deferred = $q.defer(),
+              params = angular.extend(getParams(), extraParams),
+              url = config.authorizationEndpoint + '?' + objectToQueryString(params),
+              resolved = false;
           var formatPopupOptions = function (options) {
             var pairs = [];
             angular.forEach(options, function (value, key) {
@@ -158,7 +161,7 @@ angular.module('angularOauth', []).provider('Token', function () {
           };
 
           var popup = window.open(url, popupOptions.name, formatPopupOptions(popupOptions.openParams));
-          
+
           // TODO: binding occurs for each reauthentication, leading to leaks for long-running apps.
           angular.element($window).bind('message', function (event) {
             if (event.originalEvent === undefined) {
@@ -185,7 +188,7 @@ angular.module('angularOauth', []).provider('Token', function () {
               }
             }
           });
-          // TODO: reject deferred if the popup was closed without a message being delivered
+          // TODO: reject deferred if the popup was closed without a message being delivered + maybe offer a timeout
           return deferred.promise;
         }
       };
@@ -194,7 +197,7 @@ angular.module('angularOauth', []).provider('Token', function () {
 
 
 /**
- * A controller for the redirect endpoint that inspects the URL redirected to by the autho
+ * A controller for the redirect endpoint that inspects the URL redirected to by the authorization server and sends
  * it back to other windows using.
  */
 }).controller('CallbackCtrl', [
@@ -222,8 +225,8 @@ angular.module('angularOauth', []).provider('Token', function () {
     }
     var queryString = $location.path().substring(1);
     var params = parseKeyValue(queryString);
-    // TODO: The target origin should be set to an explicit origin.  Otherwise, a malicious 
-    //       site that can receive the token if it manages to change the location of the parent. 
+    // TODO: The target origin should be set to an explicit origin.  Otherwise, a malicious site that can receive
+    //       site that can receive the token if it manages to change the location of the parent.
     //       (See: https://developer.mozilla.org/en/docs/DOM/window.postMessage#Security_concerns)
     window.opener.postMessage(params, '*');
     window.close();
