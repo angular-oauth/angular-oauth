@@ -3,7 +3,7 @@
 
 angular.module('angularOauth', []).
 
-  provider('Token', function() {
+  provider('Token', function($log) {
 
     /**
      * Given an flat object, returns a query string for use in URLs.  Note
@@ -67,12 +67,17 @@ angular.module('angularOauth', []).
 
       var getParams = function() {
         // TODO: Facebook uses comma-delimited scopes. This is not compliant with section 3.3 but perhaps support later.
+        // Send a state to authorization endpoint
+        // this state should be sent back from the endpoint and should
+        // match the original value
+        $rootScope.oauth_state = Math.Random() + new Date.getTime();
 
         return {
           response_type: RESPONSE_TYPE,
           client_id: config.clientId,
           redirect_uri: config.redirectUri,
-          scope: config.scopes.join(" ")
+          scope: config.scopes.join(" "),
+          state: $rootScope.oauth_state
         }
       };
 
@@ -168,7 +173,9 @@ angular.module('angularOauth', []).
           // TODO: binding occurs for each reauthentication, leading to leaks for long-running apps.
 
           angular.element($window).bind('message', function(event) {
-            if (event.source == popup && event.origin == window.location.origin) {
+            if (event.source == popup && event.origin == window.location.origin && 
+                event.state == $rootScope.oauth_state) {
+              $log.log('State', $rootScope.oauth_state, event.state);
               $rootScope.$apply(function() {
                 if (event.data.access_token) {
                   deferred.resolve(event.data)
