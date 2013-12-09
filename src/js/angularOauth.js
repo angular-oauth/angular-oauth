@@ -3,7 +3,7 @@
 
 angular.module('angularOauth', []).
 
-  provider('Token', function($log) {
+  provider('Token', function() {
 
     /**
      * Given an flat object, returns a query string for use in URLs.  Note
@@ -175,7 +175,9 @@ angular.module('angularOauth', []).
           angular.element($window).bind('message', function(event) {
             if (event.source == popup && event.origin == window.location.origin && 
                 event.state == $rootScope.oauth_state) {
-              $log.log('State', $rootScope.oauth_state, event.state);
+              console.log('Event State');
+              console.log(event.state);
+              console.log($rootScope.oauth_state);
               $rootScope.$apply(function() {
                 if (event.data.access_token) {
                   deferred.resolve(event.data)
