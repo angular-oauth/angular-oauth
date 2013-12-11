@@ -67,12 +67,17 @@ angular.module('angularOauth', []).
 
       var getParams = function() {
         // TODO: Facebook uses comma-delimited scopes. This is not compliant with section 3.3 but perhaps support later.
+        // Send a state to authorization endpoint
+        // this state should be sent back from the endpoint and should
+        // match the original value
+        $rootScope.oauth_state = Math.random() + new Date().getTime();
 
         return {
           response_type: RESPONSE_TYPE,
           client_id: config.clientId,
           redirect_uri: config.redirectUri,
-          scope: config.scopes.join(" ")
+          scope: config.scopes.join(" "),
+          state: $rootScope.oauth_state
         }
       };
 
@@ -167,15 +172,15 @@ angular.module('angularOauth', []).
 
           // TODO: binding occurs for each reauthentication, leading to leaks for long-running apps.
 
-          angular.element($window).bind('message', function(event) {
-            if (event.source == popup && event.origin == window.location.origin) {
-              $rootScope.$apply(function() {
-                if (event.data.access_token) {
-                  deferred.resolve(event.data)
+          window.setOauthParams = angular.bind(this, function(params) {
+            if(params.state == $rootScope.oauth_state){
+              $rootScope.$apply(function(){
+                if (params.access_token) {
+                  deferred.resolve(params)
                 } else {
-                  deferred.reject(event.data)
+                  deferred.reject(params)
                 }
-              })
+              });
             }
           });
 
@@ -185,40 +190,4 @@ angular.module('angularOauth', []).
         }
       }
     }
-  }).
-
-  /**
-   * A controller for the redirect endpoint that inspects the URL redirected to by the authorization server and sends
-   * it back to other windows using.
-   */
-  controller('CallbackCtrl', function($scope, $location) {
-
-    /**
-     * Parses an escaped url query string into key-value pairs.
-     *
-     * (Copied from Angular.js in the AngularJS project.)
-     *
-     * @returns Object.<(string|boolean)>
-     */
-    function parseKeyValue(/**string*/keyValue) {
-      var obj = {}, key_value, key;
-      angular.forEach((keyValue || "").split('&'), function(keyValue){
-        if (keyValue) {
-          key_value = keyValue.split('=');
-          key = decodeURIComponent(key_value[0]);
-          obj[key] = angular.isDefined(key_value[1]) ? decodeURIComponent(key_value[1]) : true;
-        }
-      });
-      return obj;
-    }
-
-    var queryString = $location.path().substring(1);  // preceding slash omitted
-    var params = parseKeyValue(queryString);
-
-    // TODO: The target origin should be set to an explicit origin.  Otherwise, a malicious site that can receive
-    //       the token if it manages to change the location of the parent. (See:
-    //       https://developer.mozilla.org/en/docs/DOM/window.postMessage#Security_concerns)
-
-    window.opener.postMessage(params, "*");
-    window.close();
   });
