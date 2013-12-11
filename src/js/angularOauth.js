@@ -187,6 +187,10 @@ angular.module('angularOauth', []).
           // TODO: reject deferred if the popup was closed without a message being delivered + maybe offer a timeout
 
           return deferred.promise;
+        },
+
+        getTokenType: function(){
+          return 'Bearer'
         }
       }
     }
