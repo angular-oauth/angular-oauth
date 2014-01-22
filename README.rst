@@ -12,9 +12,9 @@ Features
   ``Token.getTokenByPopup()`` function, that presents the user with the
   authorization endpoint and returns the token asynchronously.
 
-  (Implementation detail: A successfully obtained access token is handed back
-  to the parent window via ``window.opener.postMessage`` and the source and
-  origin of the sending window are verified by the parent.)
+*  __ Implementation detail:__ A successfully obtained access token is handed back
+  to the parent window verifying a random ``state`` variable generated at
+  token request.
 
 * Access token verification using ``Token.verifyAsync``, by requesting token
   information from the authorization server, verifying that the token
@@ -23,6 +23,14 @@ Features
 
 * Storage and retrieval of tokens via the `Token.get` and `Token.set`
   calls in the `Token` service.
+
+* TokenProvider configuratio can be loaded from localStorage at page reloads, by using::
+
+    .config(function(TokenProvider) {
+      TokenProvider.autoloadFromStorage();
+    });
+
+* Added Token expiration validation, via ``Token.hasValidToken()``.
 
 * A preconfigured module for use with Google authentication.  Check out the
   `example/js/demo.js <example/js/demo.js>`_ and

@@ -26,6 +26,7 @@ angular.module('angularOauth', []).
       return str.join("&");
     };
 
+
     // This response_type MUST be passed to the authorization endpoint using
     // the implicit grant flow (4.2.1 of RFC 6749).
     var RESPONSE_TYPE = 'token';
@@ -43,8 +44,36 @@ angular.module('angularOauth', []).
       scopes: []
     };
 
+    var getTokenFromStorage = function(){
+      var tokenData = localStorage[config.localStorageName];
+      if(tokenData){
+        return JSON.parse(tokenData);
+      }
+      return null;
+    };
+
+    var storeTokenToStorage = function(tokenData){
+      localStorage[config.localStorageName] = JSON.stringify(tokenData);
+    };
+
+    var isValidToken = function(tokenData){
+      if(tokenData && tokenData.token && tokenData.expires){
+        var now = new Date().getTime();
+        return now <= tokenData.expires;
+      }
+      return false;
+    };
+
     this.extendConfig = function(configExtension) {
       config = angular.extend(config, configExtension);
+    };
+
+    // Attempt to load a previously saved config in localstorage
+    this.autoloadFromStorage = function(){
+      var token = getTokenFromStorage();
+      if(token && isValidToken(token)){
+        this.extendConfig(token);
+      }
     };
 
     this.$get = function($q, $http, $window, $rootScope) {
@@ -91,16 +120,23 @@ angular.module('angularOauth', []).
          * @returns {string} The access token.
          */
         get: function() {
-          return localStorage[config.localStorageName];
+          return getTokenFromStorage();
         },
 
         /**
          * Persist the access token so that it can be retrieved later by.
          *
-         * @param accessToken
+         * @param accessToken (string) verified access token
+         * @param expiresIn (int) number of seconds until token expiration
          */
-        set: function(accessToken) {
-          localStorage[config.localStorageName] = accessToken;
+        set: function(accessToken, expiresIn) {
+          var params = getParams(), data = {};
+          data.client_id = params.client_id;
+          data.redirect_uri = params.redirect_uri;
+          data.scope = params.scope;
+          data.token = accessToken;
+          data.expires = new Date().getTime() + (parseInt(expiresIn) * 1000);
+          storeTokenToStorage(data);
         },
 
         /**
@@ -191,6 +227,25 @@ angular.module('angularOauth', []).
 
         getTokenType: function(){
           return 'Bearer'
+        },
+
+        // Checks if the token is defined and has not expired yet
+        hasValidToken: function(){
+          return isValidToken(getTokenFromStorage());
+        },
+        
+        // Utility function for getting the full string to be set
+        // on the Authorization header
+        getTokenAsString: function(){
+          var token = getTokenFromStorage();
+          if(isValidToken(token)){
+            return 'Bearer ' + token.token;
+          }
+          return null;
+        },
+        
+        unset: function(){
+          localStorage.removeItem(config.localStorageName);
         }
       }
     }
