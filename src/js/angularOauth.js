@@ -243,6 +243,14 @@ angular.module('angularOauth', []).
           }
           return null;
         },
+
+        getAsHeaderConfig: function(){
+          var token = getTokenFromStorage(), auth_header = {};
+          if(isValidToken(token)){
+            auth_header['Authorization'] =  'Bearer ' + token.token;
+          }
+          return auth_header;
+        },
         
         unset: function(){
           localStorage.removeItem(config.localStorageName);
