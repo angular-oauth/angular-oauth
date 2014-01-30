@@ -1,3 +1,5 @@
+(function(){
+
 'use strict';
 
 /**
@@ -38,11 +40,11 @@ angular.module('googleOauth', ['angularOauth']).
     }]);
   }).
 
-  config(function(TokenProvider, GoogleTokenVerifier) {
+  config(['TokenProvider', 'GoogleTokenVerifier', function(TokenProvider, GoogleTokenVerifier) {
     TokenProvider.extendConfig({
       authorizationEndpoint: 'https://accounts.google.com/o/oauth2/auth',
       scopes: ["https://www.googleapis.com/auth/userinfo.email"],
       verifyFunc: GoogleTokenVerifier
     });
-  });
-
+  }]);
+})();

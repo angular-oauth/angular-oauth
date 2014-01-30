@@ -1,3 +1,5 @@
+(function(){ 
+
 'use strict';
 
 
@@ -47,7 +49,12 @@ angular.module('angularOauth', []).
     var getTokenFromStorage = function(){
       var tokenData = localStorage[config.localStorageName];
       if(tokenData){
-        return JSON.parse(tokenData);
+        try {
+          return JSON.parse(tokenData);
+        }
+        catch(e){
+          localStorage.removeItem(config.localStorageName);
+        }
       }
       return null;
     };
@@ -64,19 +71,24 @@ angular.module('angularOauth', []).
       return false;
     };
 
-    this.extendConfig = function(configExtension) {
+    var extendConfig = function(configExtension){
       config = angular.extend(config, configExtension);
+    };
+
+    this.extendConfig = function(configExtension){
+      extendConfig(configExtension);
     };
 
     // Attempt to load a previously saved config in localstorage
     this.autoloadFromStorage = function(){
       var token = getTokenFromStorage();
       if(token && isValidToken(token)){
-        this.extendConfig(token);
+        extendConfig(token);
       }
     };
 
-    this.$get = function($q, $http, $window, $rootScope) {
+    this.$get = ['$q', '$http', '$window', '$rootScope', function($q, $http, $window, $rootScope) {
+      /**
       var requiredAndMissing = [];
       angular.forEach(config, function(value, key) {
         if (value === REQUIRED_AND_MISSING) {
@@ -93,6 +105,7 @@ angular.module('angularOauth', []).
       if (!config.clientId) {
         throw new Error("clientId needs to be configured using TokenProvider.");
       }
+      **/
 
       var getParams = function() {
         // TODO: Facebook uses comma-delimited scopes. This is not compliant with section 3.3 but perhaps support later.
@@ -114,6 +127,9 @@ angular.module('angularOauth', []).
         // TODO: get/set might want to support expiration to reauthenticate
         // TODO: check for localStorage support and otherwise perhaps use other methods of storing data (e.g. cookie)
 
+        extendConfig: function(config){
+          extendConfig(config);
+        },
         /**
          * Returns the stored access token.
          *
@@ -177,6 +193,21 @@ angular.module('angularOauth', []).
          *      `status`, `headers`, `config`).
          */
         getTokenByPopup: function(extraParams, popupOptions) {
+
+          var params = getParams();
+          var requiredAndMissing = [];
+          angular.forEach(params, function(value, key) {
+            if (value === REQUIRED_AND_MISSING) {
+              requiredAndMissing.push(key);
+            }
+          });
+
+          if (requiredAndMissing.length) {
+            throw new Error("TokenProvider is insufficiently configured.  Please " +
+              "configure the following options using " +
+              "TokenProvider.extendConfig: " + requiredAndMissing.join(", "))
+          }
+
           popupOptions = angular.extend({
             name: 'AuthPopup',
             openParams: {
@@ -256,5 +287,6 @@ angular.module('angularOauth', []).
           localStorage.removeItem(config.localStorageName);
         }
       }
-    }
+    }];
   });
+})();
