@@ -99,6 +99,13 @@ angular.module('angularOauth', []).
         },
 
         /**
+         * Forgets the access token.
+         */
+        clear: function() {
+          localStorage.removeItem(config.localStorageName);
+        },
+
+        /**
          * Verifies that the access token is was issued for the use of the current client.
          *
          * @param accessToken An access token received from the authorization server.
