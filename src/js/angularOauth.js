@@ -175,23 +175,6 @@ angular.module('angularOauth', []).
           return config.verifyFunc(config, accessToken);
         },
 
-        /**
-         * Verifies an access token asynchronously.
-         *
-         * @param extraParams An access token received from the authorization server.
-         * @param popupOptions Settings for the display of the popup.
-         * @returns {Promise} Promise that will be resolved when the authorization server has verified that the
-         *  token is valid, and we've verified that the token is passed back has audience that matches our client
-         *  ID (to prevent the Confused Deputy Problem).
-         *
-         *  If there's an error verifying the token, the promise is rejected with an object identifying the `name` error
-         *  in the name member.  The `name` can be either:
-         *
-         *    - `invalid_audience`: The audience didn't match our client ID.
-         *    - `error_response`: The server responded with an error, typically because the token was invalid.  In this
-         *      case, the callback parameters to `error` callback on `$http` are available in the object (`data`,
-         *      `status`, `headers`, `config`).
-         */
         getTokenByPopup: function(extraParams, popupOptions) {
 
           var params = getParams();
@@ -289,4 +272,4 @@ angular.module('angularOauth', []).
       }
     }];
   });
-})();
+}());
