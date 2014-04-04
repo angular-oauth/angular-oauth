@@ -1,0 +1,12 @@
+{
+  "name": "angular-oauth",
+  "version": "1.2.1",
+  "dependencies": {
+    "angular": ">= 1.2.0"
+  },
+  "homepage": "https://github.com/maciekrb/angular-oauth",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/maciekrb/angular-oauth.git"
+  }
+}

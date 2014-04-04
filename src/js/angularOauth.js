@@ -1,3 +1,5 @@
+(function(){ 
+
 'use strict';
 
 
@@ -26,6 +28,7 @@ angular.module('angularOauth', []).
       return str.join("&");
     };
 
+
     // This response_type MUST be passed to the authorization endpoint using
     // the implicit grant flow (4.2.1 of RFC 6749).
     var RESPONSE_TYPE = 'token';
@@ -43,11 +46,49 @@ angular.module('angularOauth', []).
       scopes: []
     };
 
-    this.extendConfig = function(configExtension) {
+    var getTokenFromStorage = function(){
+      var tokenData = localStorage[config.localStorageName];
+      if(tokenData){
+        try {
+          return JSON.parse(tokenData);
+        }
+        catch(e){
+          localStorage.removeItem(config.localStorageName);
+        }
+      }
+      return null;
+    };
+
+    var storeTokenToStorage = function(tokenData){
+      localStorage[config.localStorageName] = JSON.stringify(tokenData);
+    };
+
+    var isValidToken = function(tokenData){
+      if(tokenData && tokenData.token && tokenData.expires){
+        var now = new Date().getTime();
+        return now <= tokenData.expires;
+      }
+      return false;
+    };
+
+    var extendConfig = function(configExtension){
       config = angular.extend(config, configExtension);
     };
 
-    this.$get = function($q, $http, $window, $rootScope) {
+    this.extendConfig = function(configExtension){
+      extendConfig(configExtension);
+    };
+
+    // Attempt to load a previously saved config in localstorage
+    this.autoloadFromStorage = function(){
+      var token = getTokenFromStorage();
+      if(token && isValidToken(token)){
+        extendConfig(token);
+      }
+    };
+
+    this.$get = ['$q', '$http', '$window', '$rootScope', function($q, $http, $window, $rootScope) {
+      /**
       var requiredAndMissing = [];
       angular.forEach(config, function(value, key) {
         if (value === REQUIRED_AND_MISSING) {
@@ -64,15 +105,21 @@ angular.module('angularOauth', []).
       if (!config.clientId) {
         throw new Error("clientId needs to be configured using TokenProvider.");
       }
+      **/
 
       var getParams = function() {
         // TODO: Facebook uses comma-delimited scopes. This is not compliant with section 3.3 but perhaps support later.
+        // Send a state to authorization endpoint
+        // this state should be sent back from the endpoint and should
+        // match the original value
+        $rootScope.oauth_state = Math.random() + new Date().getTime();
 
         return {
           response_type: RESPONSE_TYPE,
           client_id: config.clientId,
           redirect_uri: config.redirectUri,
-          scope: config.scopes.join(" ")
+          scope: config.scopes.join(" "),
+          state: $rootScope.oauth_state
         }
       };
 
@@ -80,22 +127,32 @@ angular.module('angularOauth', []).
         // TODO: get/set might want to support expiration to reauthenticate
         // TODO: check for localStorage support and otherwise perhaps use other methods of storing data (e.g. cookie)
 
+        extendConfig: function(config){
+          extendConfig(config);
+        },
         /**
          * Returns the stored access token.
          *
          * @returns {string} The access token.
          */
         get: function() {
-          return localStorage[config.localStorageName];
+          return getTokenFromStorage();
         },
 
         /**
          * Persist the access token so that it can be retrieved later by.
          *
-         * @param accessToken
+         * @param accessToken (string) verified access token
+         * @param expiresIn (int) number of seconds until token expiration
          */
-        set: function(accessToken) {
-          localStorage[config.localStorageName] = accessToken;
+        set: function(accessToken, expiresIn) {
+          var params = getParams(), data = {};
+          data.client_id = params.client_id;
+          data.redirect_uri = params.redirect_uri;
+          data.scope = params.scope;
+          data.token = accessToken;
+          data.expires = new Date().getTime() + (parseInt(expiresIn) * 1000);
+          storeTokenToStorage(data);
         },
 
         /**
@@ -118,24 +175,22 @@ angular.module('angularOauth', []).
           return config.verifyFunc(config, accessToken);
         },
 
-        /**
-         * Verifies an access token asynchronously.
-         *
-         * @param extraParams An access token received from the authorization server.
-         * @param popupOptions Settings for the display of the popup.
-         * @returns {Promise} Promise that will be resolved when the authorization server has verified that the
-         *  token is valid, and we've verified that the token is passed back has audience that matches our client
-         *  ID (to prevent the Confused Deputy Problem).
-         *
-         *  If there's an error verifying the token, the promise is rejected with an object identifying the `name` error
-         *  in the name member.  The `name` can be either:
-         *
-         *    - `invalid_audience`: The audience didn't match our client ID.
-         *    - `error_response`: The server responded with an error, typically because the token was invalid.  In this
-         *      case, the callback parameters to `error` callback on `$http` are available in the object (`data`,
-         *      `status`, `headers`, `config`).
-         */
         getTokenByPopup: function(extraParams, popupOptions) {
+
+          var params = getParams();
+          var requiredAndMissing = [];
+          angular.forEach(params, function(value, key) {
+            if (value === REQUIRED_AND_MISSING) {
+              requiredAndMissing.push(key);
+            }
+          });
+
+          if (requiredAndMissing.length) {
+            throw new Error("TokenProvider is insufficiently configured.  Please " +
+              "configure the following options using " +
+              "TokenProvider.extendConfig: " + requiredAndMissing.join(", "))
+          }
+
           popupOptions = angular.extend({
             name: 'AuthPopup',
             openParams: {
@@ -167,58 +222,54 @@ angular.module('angularOauth', []).
 
           // TODO: binding occurs for each reauthentication, leading to leaks for long-running apps.
 
-          angular.element($window).bind('message', function(event) {
-            if (event.source == popup && event.origin == window.location.origin) {
-              $rootScope.$apply(function() {
-                if (event.data.access_token) {
-                  deferred.resolve(event.data)
+          window.setOauthParams = angular.bind(this, function(params) {
+            if(params.state == $rootScope.oauth_state){
+              $rootScope.$apply(function(){
+                if (params.access_token) {
+                  deferred.resolve(params)
                 } else {
-                  deferred.reject(event.data)
+                  deferred.reject(params)
                 }
-              })
+              });
             }
           });
 
           // TODO: reject deferred if the popup was closed without a message being delivered + maybe offer a timeout
 
           return deferred.promise;
+        },
+
+        getTokenType: function(){
+          return 'Bearer'
+        },
+
+        // Checks if the token is defined and has not expired yet
+        hasValidToken: function(){
+          return isValidToken(getTokenFromStorage());
+        },
+        
+        // Utility function for getting the full string to be set
+        // on the Authorization header
+        getTokenAsString: function(){
+          var token = getTokenFromStorage();
+          if(isValidToken(token)){
+            return 'Bearer ' + token.token;
+          }
+          return null;
+        },
+
+        getAsHeaderConfig: function(){
+          var token = getTokenFromStorage(), auth_header = {};
+          if(isValidToken(token)){
+            auth_header['Authorization'] =  'Bearer ' + token.token;
+          }
+          return auth_header;
+        },
+        
+        unset: function(){
+          localStorage.removeItem(config.localStorageName);
         }
       }
-    }
-  }).
-
-  /**
-   * A controller for the redirect endpoint that inspects the URL redirected to by the authorization server and sends
-   * it back to other windows using.
-   */
-  controller('CallbackCtrl', function($scope, $location) {
-
-    /**
-     * Parses an escaped url query string into key-value pairs.
-     *
-     * (Copied from Angular.js in the AngularJS project.)
-     *
-     * @returns Object.<(string|boolean)>
-     */
-    function parseKeyValue(/**string*/keyValue) {
-      var obj = {}, key_value, key;
-      angular.forEach((keyValue || "").split('&'), function(keyValue){
-        if (keyValue) {
-          key_value = keyValue.split('=');
-          key = decodeURIComponent(key_value[0]);
-          obj[key] = angular.isDefined(key_value[1]) ? decodeURIComponent(key_value[1]) : true;
-        }
-      });
-      return obj;
-    }
-
-    var queryString = $location.path().substring(1);  // preceding slash omitted
-    var params = parseKeyValue(queryString);
-
-    // TODO: The target origin should be set to an explicit origin.  Otherwise, a malicious site that can receive
-    //       the token if it manages to change the location of the parent. (See:
-    //       https://developer.mozilla.org/en/docs/DOM/window.postMessage#Security_concerns)
-
-    window.opener.postMessage(params, "*");
-    window.close();
+    }];
   });
+}());
