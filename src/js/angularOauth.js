@@ -76,6 +76,11 @@ angular.module('angularOauth', []).
         }
       };
 
+      var buildAuthorizationUrl = function(extraParams) {
+        var params = angular.extend(getParams(), extraParams);
+        return config.authorizationEndpoint + '?' + objectToQueryString(params);
+      }
+
       return {
         // TODO: get/set might want to support expiration to reauthenticate
         // TODO: check for localStorage support and otherwise perhaps use other methods of storing data (e.g. cookie)
@@ -155,8 +160,7 @@ angular.module('angularOauth', []).
           }, popupOptions);
 
           var deferred = $q.defer(),
-            params = angular.extend(getParams(), extraParams),
-            url = config.authorizationEndpoint + '?' + objectToQueryString(params),
+            url = buildAuthorizationUrl(extraParams),
             resolved = false;
 
           var formatPopupOptions = function(options) {
@@ -191,6 +195,10 @@ angular.module('angularOauth', []).
           // TODO: reject deferred if the popup was closed without a message being delivered + maybe offer a timeout
 
           return deferred.promise;
+        },
+        getTokenInSameWindow: function(extraParams) {
+          var url = buildAuthorizationUrl(extraParams);
+          $window.location.href = url;
         }
       }
     }
