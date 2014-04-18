@@ -128,7 +128,7 @@ angular.module('angularOauth', []).
         /**
          * Verifies an access token asynchronously.
          *
-         * @param extraParams An access token received from the authorization server.
+         * @param extraParams Additional params to be appended to the query string of the request.
          * @param popupOptions Settings for the display of the popup.
          * @returns {Promise} Promise that will be resolved when the authorization server has verified that the
          *  token is valid, and we've verified that the token is passed back has audience that matches our client
