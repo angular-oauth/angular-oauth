@@ -69,7 +69,7 @@ angular.module('angularOauth', []).
         // TODO: Facebook uses comma-delimited scopes. This is not compliant with section 3.3 but perhaps support later.
 
         return {
-          response_type: RESPONSE_TYPE,
+          response_type: config.responseType || RESPONSE_TYPE,
           client_id: config.clientId,
           redirect_uri: config.redirectUri,
           scope: config.scopes.join(" ")
