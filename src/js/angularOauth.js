@@ -214,9 +214,9 @@ angular.module('angularOauth', []).
       angular.forEach((keyValue || "").split('&'), function(keyValue){
         if (keyValue) {
           pos = keyValue.indexOf("=");
-					key = decodeURIComponent(keyValue.substr(0, pos));
-					key_value = keyValue.substr(pos + 1);
-					obj[key] = key_value ? decodeURIComponent(key_value) : true;
+          key = decodeURIComponent(keyValue.substr(0, pos));
+          key_value = keyValue.substr(pos + 1);
+          obj[key] = key_value ? decodeURIComponent(key_value) : true;
         }
       });
       return obj;
