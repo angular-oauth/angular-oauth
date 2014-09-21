@@ -4,7 +4,7 @@ About
 This project provides an implementation of a client-side (implicit grant)
 OAuth 2.0 authorization flow.
 
-**Looking for a new maintainer! I've moved away from the Angular world, and I have not found the time to develop a stable, up-to-date, packageble and testable library for doing OAuth with Angular.  If you feel like you have the time and interest to make this module more useful to the community, please be in touch at fridrik@pyth.net.**
+**Looking for a new maintainer! I've moved away from the Angular world, and I have not found the time to develop this project into a stable, up-to-date, packageble and testable library for doing OAuth with Angular.  If you feel like you have the time and interest to make this module more useful to the community, please be in touch at fridrik@pyth.net.**
 
 
 Features
