@@ -76,6 +76,7 @@
 
 	// Custom Globals
 	"globals": {
+		"afterEach": true,
 		"angular": true,
 		"beforeEach": true,
 		"chai": true,

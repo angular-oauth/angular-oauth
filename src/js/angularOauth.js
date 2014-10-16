@@ -219,8 +219,9 @@
 		 * @returns Object.<(string|boolean)>
 		 */
 		function parseKeyValue( /**string*/ keyValue) {
-			var obj = {},
-				key_value, key;
+			var obj = {};
+			var key_value, key;
+			
 			angular.forEach((keyValue || "").split('&'), function (keyValue) {
 				if (keyValue) {
 					key_value = keyValue.split('=');
@@ -228,6 +229,7 @@
 					obj[key] = angular.isDefined(key_value[1]) ? decodeURIComponent(key_value[1]) : true;
 				}
 			});
+			
 			return obj;
 		}
 
