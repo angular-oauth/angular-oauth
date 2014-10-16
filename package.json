@@ -1,0 +1,17 @@
+{
+  "name": "angular-oauth",
+  "version": "1.0.1",
+  "description": "",
+  "main": "src/js/angularOauth.js",
+  "dependencies": {},
+  "devDependencies": {
+    "chai": "^1.9.1",
+    "karma": "^0.12.21",
+    "karma-brackets": "^0.2.1",
+    "karma-mocha": "^0.1.6",
+    "karma-phantomjs-launcher": "^0.1.4",
+    "mocha": "^1.21.4",
+	"sinon": "^1.10.3",
+    "sinon-chai": "^2.6.0"
+  }
+}

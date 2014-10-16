@@ -1,0 +1,24 @@
+{
+	"name": "angular-oauth",
+	"version": "1.0.1",
+	"description": "",
+	"main": "src/js/angularOauth.js",
+	"ignore": [
+    ".gitignore",
+    ".jshintrc",
+    "bower_components/",
+    "node_modules/",
+	"example/",
+    "gulpfile.js",
+    "karma.conf.js",
+    "LICENSE.md",
+    "README.md",
+	"src/js/angularOauth.spec.js"
+  ],
+	"devDependencies": {
+		"angular": "~1.3.0",
+		"mocha": "~1.21.5",
+		"angular-mocks": "~1.3.0"
+	},
+	"dependencies": {}
+}
