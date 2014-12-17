@@ -4,9 +4,9 @@
   "dependencies": {
     "angular": ">= 1.1.4"
   },
-  "homepage": "https://github.com/enginous/angular-oauth",
+  "homepage": "https://github.com/angular-oauth/angular-oauth",
   "repository": {
     "type": "git",
-    "url": "git://github.com/enginous/angular-oauth.git"
+    "url": "git://github.com/angular-oauth/angular-oauth.git"
   }
 }
