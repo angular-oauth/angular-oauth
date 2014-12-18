@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en" ng-app="demoPopup" data-ng-controller="PopupCtrl">
+<html lang="en" ng-app="demoRedirect" data-ng-controller="RedirectCtrl">
 
 <head>
   <meta charset="utf-8">
@@ -13,9 +13,11 @@
     <label for="askApproval">Always ask me for approval (even if I've already given it)</label>
 
     <div>
-      <button data-ng-click="authenticate()">Authenticate With Popup</button>
+      <button data-ng-click="authenticate()">Authenticate With Redirect</button>
     </div>
   </div>
+
+  {{test}}
 
   <div data-ng-show="accessToken">
     <h1>You're authenticated!</h1>
@@ -29,10 +31,12 @@
     </div>
   </div>
 
+
   <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.0/angular.js"></script>
+  <script src="https://code.angularjs.org/1.2.26/angular-route.min.js"></script>
   <script src="../src/js/googleOauth.js"></script>
   <script src="../src/js/angularOauth.js"></script>
-  <script src="js/popupDemo.js"></script>
+  <script src="js/redirectDemo.js"></script>
 </body>
 
 </html>
