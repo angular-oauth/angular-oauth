@@ -218,12 +218,13 @@ angular.module('angularOauth', []).
      * @returns Object.<(string|boolean)>
      */
     function parseKeyValue(/**string*/keyValue) {
-      var obj = {}, key_value, key;
+      var obj = {}, key_value, key, pos;
       angular.forEach((keyValue || "").split('&'), function(keyValue){
         if (keyValue) {
-          key_value = keyValue.split('=');
-          key = decodeURIComponent(key_value[0]);
-          obj[key] = angular.isDefined(key_value[1]) ? decodeURIComponent(key_value[1]) : true;
+          pos = keyValue.indexOf("=");
+          key = decodeURIComponent(keyValue.substr(0, pos));
+          key_value = keyValue.substr(pos + 1);
+          obj[key] = key_value ? decodeURIComponent(key_value) : true;
         }
       });
       return obj;
