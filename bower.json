@@ -1,0 +1,27 @@
+{
+  "name": "angular-oauth",
+  "version": "1.0.1",
+  "homepage": "https://github.com/angular-oauth/angular-oauth",
+  "description": "Client-side (implicit grant) OAuth 2.0 authorization flow for AngularJS",
+  "main": "src/js/angularOauth.js",
+  "dependencies": {
+    "angular": ">= 1.1.4"
+  },
+  "moduleType": [
+    "globals"
+  ],
+  "keywords": [
+    "angular",
+    "oauth2",
+    "implicit",
+    "grant"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}
