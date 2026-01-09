@@ -1,3 +1,10 @@
+Archived
+$$$$$$$$
+This project is archived and has not been maintained for 12 years.
+
+What it used to be
+$$$$$$$$$$$$$$$$$$
+
 About
 =====
 
